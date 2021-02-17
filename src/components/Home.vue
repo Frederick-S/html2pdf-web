@@ -31,15 +31,37 @@ export default {
   },
   methods: {
     generate () {
+      if (!this.html) {
+        this.$buefy.dialog.alert({
+          title: 'Error',
+          message: 'Empty content',
+          type: 'is-danger'
+        })
+
+        return
+      }
+
+      const loadingComponent = this.$buefy.loading.open({
+        container: null
+      })
+
       axios.post('https://html2pdf101.azurewebsites.net/pdfs', {
         html: this.html,
         format: this.format
       }, {
         responseType: 'blob'
       }).then(response => {
+        loadingComponent.close()
+
         fileDownload(response.data, 'generated.pdf')
       }).catch(error => {
-        console.error(error)
+        loadingComponent.close()
+
+        this.$buefy.dialog.alert({
+          title: 'Error',
+          message: error.message,
+          type: 'is-danger'
+        })
       })
     }
   }
